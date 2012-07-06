@@ -1,0 +1,4 @@
+name: ChatManager
+main: net.betterverse.chatmanager.ChatManager
+version: 1.0
+author: aPunch
