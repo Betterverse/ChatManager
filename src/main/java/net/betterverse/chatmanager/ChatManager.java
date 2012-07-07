@@ -26,6 +26,9 @@ public class ChatManager extends JavaPlugin implements Listener {
     public void onEnable() {
         config = new Configuration(this);
 
+        // Register commands
+        getCommand("modchat").setExecutor(new ModeratorChatExecutor(this));
+
         getServer().getPluginManager().registerEvents(this, this);
 
         log(toString() + " enabled.");

@@ -2,8 +2,14 @@ name: ChatManager
 main: net.betterverse.chatmanager.ChatManager
 version: 1.0
 author: aPunch
+commands:
+  modchat:
+    description: Toggle the private moderator channel
 permissions:
   chatmanager.*:
     default: op
     children:
       chatmanager.colored: true
+      chatmanager.moderate.*:
+        children:
+          chatmanager.moderate.modchat: true
