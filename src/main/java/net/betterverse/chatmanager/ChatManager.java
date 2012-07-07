@@ -123,7 +123,6 @@ public class ChatManager extends JavaPlugin implements Listener {
             // If message was sent within the limit, add to the total
             if (message.getTime() > earliestTime) {
                 total++;
-                System.out.println("total: " + total);
             }
 
             if (total == messageLimit) {
