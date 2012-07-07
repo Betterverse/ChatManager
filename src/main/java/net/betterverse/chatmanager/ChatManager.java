@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import net.betterverse.chatmanager.util.Configuration;
+import net.betterverse.chatmanager.util.StringHelper;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -57,8 +58,15 @@ public class ChatManager extends JavaPlugin implements Listener {
                 event.setCancelled(true);
             }
 
-            // Add player to list of messages
-            messages.add(new ChatMessage(player.getName(), event.getMessage(), System.currentTimeMillis()));
+            String message = event.getMessage();
+
+            // Strip color codes from the message if the player does not have the proper permission
+            if (!player.hasPermission("chatmanager.colored")) {
+                event.setMessage(StringHelper.stripColors(message));
+            }
+
+            // Cache message
+            messages.add(new ChatMessage(player.getName(), message, System.currentTimeMillis()));
         }
     }
 
