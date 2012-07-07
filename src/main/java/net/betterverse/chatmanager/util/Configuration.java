@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.entity.Player;
+
+import ru.tehkode.permissions.bukkit.PermissionsEx;
+
 import net.betterverse.chatmanager.ChatManager;
 
 public class Configuration {
@@ -14,6 +18,11 @@ public class Configuration {
         this.file = new YamlFile(plugin, new File(plugin.getDataFolder(), "config.yml"), "config");
 
         load();
+    }
+
+    public String getFormattedMessage(Player player, String message) {
+        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "" /* TODO */).replace("<nickname>", player.getDisplayName())
+                .replace("<message>", message);
     }
 
     public int getChatLimit() {
@@ -41,6 +50,7 @@ public class Configuration {
 
         // Add defaults
         Map<String, Object> defaults = new HashMap<String, Object>();
+        defaults.put("chat-format", "<prefix><pex-prefix><nickname>:&f <message>");
         defaults.put("chat-limit.messages", 4);
         defaults.put("chat-limit.time-in-seconds", 30);
         defaults.put("maximum-consecutive-messages", 4);
