@@ -83,7 +83,7 @@ public class ChatManager extends JavaPlugin implements Listener {
                 message = StringHelper.stripColors(message);
             }
 
-            event.setFormat(config.getFormattedMessage(player, message));
+            event.setFormat(StringHelper.parseColors(config.getFormattedMessage(player, message)));
 
             // Cache message
             messages.add(new ChatMessage(player.getName(), message, System.currentTimeMillis()));
