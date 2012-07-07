@@ -9,15 +9,19 @@ import net.betterverse.chatmanager.command.MuteExecutor;
 import net.betterverse.chatmanager.util.Configuration;
 import net.betterverse.chatmanager.util.StringHelper;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ru.tehkode.permissions.bukkit.PermissionsEx;
+
 public class ChatManager extends JavaPlugin implements Listener {
     private final List<ChatMessage> messages = new ArrayList<ChatMessage>();
     private Configuration config;
+    private MuteExecutor muteCmd;
 
     @Override
     public void onDisable() {
@@ -30,8 +34,10 @@ public class ChatManager extends JavaPlugin implements Listener {
 
         // Register commands
         getCommand("modchat").setExecutor(new ModeratorChatExecutor(this));
-        getCommand("mute").setExecutor(new MuteExecutor(this));
-        getCommand("unmute").setExecutor(new MuteExecutor(this));
+
+        muteCmd = new MuteExecutor();
+        getCommand("mute").setExecutor(muteCmd);
+        getCommand("unmute").setExecutor(muteCmd);
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -53,6 +59,12 @@ public class ChatManager extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerChat(PlayerChatEvent event) {
         Player player = event.getPlayer();
+        // Check if the player is muted
+        if (muteCmd.isPlayerMuted(player)) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You cannot speak. You have been muted for the reason: " + muteCmd.getMuteReason(player));
+        }
+
         // Check for spam
         if (hasConsecutiveMessages(player)) {
             // Player has sent too many messages in a row, warn for spam
@@ -66,11 +78,12 @@ public class ChatManager extends JavaPlugin implements Listener {
             }
 
             String message = event.getMessage();
-
             // Strip color codes from the message if the player does not have the proper permission
             if (!player.hasPermission("chatmanager.colored")) {
-                event.setMessage(StringHelper.stripColors(message));
+                message = StringHelper.stripColors(message);
             }
+
+            event.setFormat(PermissionsEx.getUser(player).getPrefix(player.getWorld().getName()) + player.getDisplayName() + ": " + message);
 
             // Cache message
             messages.add(new ChatMessage(player.getName(), message, System.currentTimeMillis()));

@@ -17,6 +17,10 @@
 			<id>bukkit-repo</id>
 			<url>http://repo.bukkit.org/content/groups/public/</url>
 		</repository>
+		<repository>
+			<id>pex-repo</id>
+			<url>http://repo.tehkode.ru/repository/bukkit-plugins/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -26,6 +30,12 @@
 			<version>1.2.5-R4.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>ru.tehkode</groupId>
+			<artifactId>PermissionsEx</artifactId>
+			<version>1.20-SNAPSHOT</version>
+			<type>jar</type>
 		</dependency>
 	</dependencies>
 

@@ -3,24 +3,14 @@ package net.betterverse.chatmanager.command;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.betterverse.chatmanager.ChatManager;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
 
-public class MuteExecutor implements CommandExecutor, Listener {
+public class MuteExecutor implements CommandExecutor {
     private final Map<String, String> muted = new HashMap<String, String>();
-
-    public MuteExecutor(ChatManager plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
@@ -60,13 +50,12 @@ public class MuteExecutor implements CommandExecutor, Listener {
         return true;
     }
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void onPlayerChat(PlayerChatEvent event) {
-        Player player = event.getPlayer();
-        if (muted.containsKey(player.getName())) {
-            event.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "You cannot speak. You have been muted for the reason: " + muted.get(player.getName()));
-        }
+    public String getMuteReason(Player player) {
+        return muted.get(player.getName());
+    }
+
+    public boolean isPlayerMuted(Player player) {
+        return muted.containsKey(player.getName());
     }
 
     private String getReason(String[] args) {

@@ -2,6 +2,7 @@ name: ChatManager
 main: net.betterverse.chatmanager.ChatManager
 version: 1.0
 author: aPunch
+depend: [PermissionsEx]
 commands:
   modchat:
     description: Toggle the private moderator channel
