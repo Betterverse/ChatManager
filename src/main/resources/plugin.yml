@@ -5,6 +5,10 @@ author: aPunch
 commands:
   modchat:
     description: Toggle the private moderator channel
+  mute:
+    description: Mute a player
+  unmute:
+    description: Unmute a player
 permissions:
   chatmanager.*:
     default: op
@@ -13,3 +17,4 @@ permissions:
       chatmanager.moderate.*:
         children:
           chatmanager.moderate.modchat: true
+          chatmanager.moderate.mute: true

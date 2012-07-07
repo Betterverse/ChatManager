@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import net.betterverse.chatmanager.command.ModeratorChatExecutor;
+import net.betterverse.chatmanager.command.MuteExecutor;
 import net.betterverse.chatmanager.util.Configuration;
 import net.betterverse.chatmanager.util.StringHelper;
 
@@ -28,6 +30,8 @@ public class ChatManager extends JavaPlugin implements Listener {
 
         // Register commands
         getCommand("modchat").setExecutor(new ModeratorChatExecutor(this));
+        getCommand("mute").setExecutor(new MuteExecutor(this));
+        getCommand("unmute").setExecutor(new MuteExecutor(this));
 
         getServer().getPluginManager().registerEvents(this, this);
 
