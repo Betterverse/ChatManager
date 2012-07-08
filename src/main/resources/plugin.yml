@@ -25,3 +25,4 @@ permissions:
         children:
           chatmanager.moderate.modchat: true
           chatmanager.moderate.mute: true
+      chatmanager.whisper: true

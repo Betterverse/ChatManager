@@ -18,15 +18,19 @@ public class WhisperExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
-        if (args.length >= 2) {
-            Player player = sender.getServer().getPlayer(args[0]);
-            if (player != null) {
-                plugin.whisper(sender, player, StringHelper.concatenate(args, 1));
+        if (sender.hasPermission("chatmanager.whisper")) {
+            if (args.length >= 2) {
+                Player player = sender.getServer().getPlayer(args[0]);
+                if (player != null) {
+                    plugin.whisper(sender, player, StringHelper.concatenate(args, 1));
+                } else {
+                    sender.sendMessage(ChatColor.RED + args[1] + " is not online.");
+                }
             } else {
-                sender.sendMessage(ChatColor.RED + args[1] + " is not online.");
+                sender.sendMessage(ChatColor.RED + "Invalid arguments. /w <player> <msg>");
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "Invalid arguments. /w <player> <msg>");
+            sender.sendMessage(ChatColor.RED + "You do not have permission.");
         }
 
         return true;

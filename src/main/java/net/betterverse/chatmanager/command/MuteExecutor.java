@@ -16,8 +16,8 @@ public class MuteExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
-        if (args.length >= 2) {
-            if (sender.hasPermission("chatmanager.moderate.mute")) {
+        if (sender.hasPermission("chatmanager.moderate.mute")) {
+            if (args.length >= 2) {
                 Player player = sender.getServer().getPlayer(args[0]);
                 if (player != null) {
                     if (cmdLabel.equalsIgnoreCase("mute")) {
@@ -44,9 +44,11 @@ public class MuteExecutor implements CommandExecutor {
                 } else {
                     sender.sendMessage(ChatColor.RED + args[1] + " is not online.");
                 }
+            } else {
+                sender.sendMessage(ChatColor.RED + "Invalid arguments. /<mute|unmute> <player> <reason>");
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "Invalid arguments. /<mute|unmute> <player> <reason>");
+            sender.sendMessage(ChatColor.RED + "You do not have permission.");
         }
 
         return true;
