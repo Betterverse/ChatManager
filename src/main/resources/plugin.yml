@@ -8,8 +8,14 @@ commands:
     description: Toggle the private moderator channel
   mute:
     description: Mute a player
+  reply:
+    description: Reply to a player's private message
+    aliases: [r]
   unmute:
     description: Unmute a player
+  whisper:
+    description: Send a private message to a player
+    aliases: [msg, w]
 permissions:
   chatmanager.*:
     default: op

@@ -6,10 +6,12 @@ import java.util.logging.Level;
 
 import net.betterverse.chatmanager.command.ModeratorChatExecutor;
 import net.betterverse.chatmanager.command.MuteExecutor;
+import net.betterverse.chatmanager.command.WhisperExecutor;
 import net.betterverse.chatmanager.util.Configuration;
 import net.betterverse.chatmanager.util.StringHelper;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,6 +22,7 @@ public class ChatManager extends JavaPlugin implements Listener {
     private final List<ChatMessage> messages = new ArrayList<ChatMessage>();
     private Configuration config;
     private MuteExecutor muteCmd;
+    private ReplyExecutor replyCmd;
 
     @Override
     public void onDisable() {
@@ -33,10 +36,16 @@ public class ChatManager extends JavaPlugin implements Listener {
         // Register commands
         getCommand("modchat").setExecutor(new ModeratorChatExecutor(this));
 
+        replyCmd = new ReplyExecutor(this);
+        getCommand("reply").setExecutor(replyCmd);
+
         muteCmd = new MuteExecutor();
         getCommand("mute").setExecutor(muteCmd);
         getCommand("unmute").setExecutor(muteCmd);
 
+        getCommand("whisper").setExecutor(new WhisperExecutor(this));
+
+        // Register events
         getServer().getPluginManager().registerEvents(this, this);
 
         log(toString() + " enabled.");
@@ -102,7 +111,7 @@ public class ChatManager extends JavaPlugin implements Listener {
             event.setFormat(StringHelper.parseColors(config.getFormattedMessage(player, message)));
 
             // Cache message
-            messages.add(new ChatMessage(player.getName(), message, System.currentTimeMillis()));
+            messages.add(new ChatMessage(player.getName(), System.currentTimeMillis()));
         }
     }
 
@@ -112,6 +121,13 @@ public class ChatManager extends JavaPlugin implements Listener {
 
     public void log(String message) {
         log(Level.INFO, message);
+    }
+
+    public void whisper(CommandSender sender, CommandSender receiver, String message) {
+        sender.sendMessage(ChatColor.GRAY + "You whispered to " + receiver.getName() + ": " + message);
+        receiver.sendMessage(ChatColor.GRAY + sender.getName() + " whispered to you: " + message);
+
+        replyCmd.addReply(sender, receiver);
     }
 
     private boolean hasConsecutiveMessages(Player player) {

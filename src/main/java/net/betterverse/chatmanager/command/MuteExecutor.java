@@ -3,6 +3,8 @@ package net.betterverse.chatmanager.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.betterverse.chatmanager.util.StringHelper;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,7 +21,7 @@ public class MuteExecutor implements CommandExecutor {
                 Player player = sender.getServer().getPlayer(args[0]);
                 if (player != null) {
                     if (cmdLabel.equalsIgnoreCase("mute")) {
-                        muted.put(player.getName(), getReason(args));
+                        muted.put(player.getName(), StringHelper.concatenate(args, 1));
                         sender.sendMessage(ChatColor.GREEN + "You muted " + ChatColor.YELLOW + player.getName() + ChatColor.GREEN + ".");
 
                         for (Player online : sender.getServer().getOnlinePlayers()) {
@@ -56,19 +58,5 @@ public class MuteExecutor implements CommandExecutor {
 
     public boolean isPlayerMuted(Player player) {
         return muted.containsKey(player.getName());
-    }
-
-    private String getReason(String[] args) {
-        StringBuilder reason = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            reason.append(args[i]);
-
-            // Append a space if it is not the last argument
-            if (i + 1 < args.length) {
-                reason.append(" ");
-            }
-        }
-
-        return reason.toString();
     }
 }
