@@ -120,6 +120,10 @@ public class ChatManager extends JavaPlugin implements Listener {
         int max = config.getMaximumConsecutiveMessages();
         for (ChatMessage message : messages) {
             String name = message.getPlayer();
+            if (!name.equals(player.getName())) {
+                continue;
+            }
+
             if (previous.isEmpty()) {
                 // First entry on the list
                 previous = name;
