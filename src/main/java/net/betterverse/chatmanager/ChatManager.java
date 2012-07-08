@@ -124,9 +124,7 @@ public class ChatManager extends JavaPlugin implements Listener {
     }
 
     public void whisper(CommandSender sender, CommandSender receiver, String message) {
-        sender.sendMessage(ChatColor.GRAY + "You whispered to " + receiver.getName() + ": " + message);
-        receiver.sendMessage(ChatColor.GRAY + sender.getName() + " whispered to you: " + message);
-
+        config.sendWhisperMessages(sender, receiver, message);
         replyCmd.addReply(sender, receiver);
     }
 

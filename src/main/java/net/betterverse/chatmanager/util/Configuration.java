@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -53,6 +54,11 @@ public class Configuration {
         return file.getInt("maximum-consecutive-messages");
     }
 
+    public void sendWhisperMessages(CommandSender sender, CommandSender receiver, String message) {
+        sender.sendMessage(StringHelper.parseColors(file.getString("whisper-format.send").replace("<sender>", sender.getName()).replace("<receiver>", receiver.getName()).replace("<message>", message)));
+        receiver.sendMessage(StringHelper.parseColors(file.getString("whisper-format.receive").replace("<sender>", sender.getName()).replace("<receiver>", receiver.getName()).replace("<message>", message)));
+    }
+
     public void load() {
         file.load();
 
@@ -66,6 +72,8 @@ public class Configuration {
         defaults.put("messages.chat-limit-warning", "&cYou have sent too many messages within <time> seconds. Please be patient.");
         defaults.put("messages.consecutive-message-timeout-notification", "&aOkay, enough punishment. You can talk again.");
         defaults.put("messages.consecutive-warning", "&cYou have sent too many messages in a row. Please wait for someone else to chat before chatting again.");
+        defaults.put("whisper-format.receive", "&7<sender> whispered to you: <message>");
+        defaults.put("whisper-format.send", "&7You whispered to <receiver>: <message>");
 
         for (Entry<String, Object> entry : defaults.entrySet()) {
             if (!file.containsKey(entry.getKey())) {
