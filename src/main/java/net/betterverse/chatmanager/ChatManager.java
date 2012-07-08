@@ -137,6 +137,8 @@ public class ChatManager extends JavaPlugin implements Listener {
         for (ChatMessage message : messages) {
             String name = message.getPlayer();
             if (!name.equals(player.getName())) {
+                consecutive = 0;
+                previous = name;
                 continue;
             }
 
