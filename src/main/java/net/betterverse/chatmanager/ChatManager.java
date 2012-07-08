@@ -1,11 +1,15 @@
 package net.betterverse.chatmanager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
+import net.betterverse.chatmanager.command.MeExecutor;
 import net.betterverse.chatmanager.command.ModeratorChatExecutor;
 import net.betterverse.chatmanager.command.MuteExecutor;
+import net.betterverse.chatmanager.command.ReplyExecutor;
 import net.betterverse.chatmanager.command.WhisperExecutor;
 import net.betterverse.chatmanager.util.Configuration;
 import net.betterverse.chatmanager.util.StringHelper;
@@ -20,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChatManager extends JavaPlugin implements Listener {
     private final List<ChatMessage> messages = new ArrayList<ChatMessage>();
+    private final Set<String> tasks = new HashSet<String>();
     private Configuration config;
     private MuteExecutor muteCmd;
     private ReplyExecutor replyCmd;
@@ -38,6 +43,8 @@ public class ChatManager extends JavaPlugin implements Listener {
 
         replyCmd = new ReplyExecutor(this);
         getCommand("reply").setExecutor(replyCmd);
+
+        getCommand("me").setExecutor(new MeExecutor(this));
 
         muteCmd = new MuteExecutor();
         getCommand("mute").setExecutor(muteCmd);
@@ -79,22 +86,26 @@ public class ChatManager extends JavaPlugin implements Listener {
             player.sendMessage(config.getConsecutiveMessageWarning());
             event.setCancelled(true);
 
-            // Start time-out
-            getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+            // Start time-out if the player has not yet been warned
+            if (!tasks.contains(player.getName())) {
+                tasks.add(player.getName());
+                getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 
-                @Override
-                public void run() {
-                    List<ChatMessage> remove = new ArrayList<ChatMessage>();
-                    for (ChatMessage message : messages) {
-                        if (message.getPlayer().equals(player.getName())) {
-                            remove.add(message);
+                    @Override
+                    public void run() {
+                        List<ChatMessage> remove = new ArrayList<ChatMessage>();
+                        for (ChatMessage message : messages) {
+                            if (message.getPlayer().equals(player.getName())) {
+                                remove.add(message);
+                            }
                         }
-                    }
 
-                    messages.removeAll(remove);
-                    player.sendMessage(config.getConsecutiveMessageTimeoutNotification());
-                }
-            }, config.getConsecutiveMessageTimeout());
+                        messages.removeAll(remove);
+                        player.sendMessage(config.getConsecutiveMessageTimeoutNotification());
+                        tasks.remove(player.getName());
+                    }
+                }, config.getConsecutiveMessageTimeout());
+            }
         } else {
             // Check if player has sent too many messages within a certain period
             if (hasExceededChatLimit(player)) {
@@ -106,6 +117,7 @@ public class ChatManager extends JavaPlugin implements Listener {
             // Strip color codes from the message if the player does not have the proper permission
             if (!player.hasPermission("chatmanager.colored")) {
                 message = StringHelper.stripColors(message);
+                event.setMessage(message);
             }
 
             event.setFormat(StringHelper.parseColors(config.getFormattedMessage(player, message)));
@@ -113,6 +125,10 @@ public class ChatManager extends JavaPlugin implements Listener {
             // Cache message
             messages.add(new ChatMessage(player.getName(), System.currentTimeMillis()));
         }
+    }
+
+    public Configuration config() {
+        return config;
     }
 
     public void log(Level level, String message) {

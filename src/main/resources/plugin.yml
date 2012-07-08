@@ -4,6 +4,8 @@ version: 1.0
 author: aPunch
 depend: [PermissionsEx]
 commands:
+  me:
+    description: Say what you are doing
   modchat:
     description: Toggle the private moderator channel
   mute:

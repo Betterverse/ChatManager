@@ -1,8 +1,9 @@
-package net.betterverse.chatmanager;
+package net.betterverse.chatmanager.command;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import net.betterverse.chatmanager.ChatManager;
 import net.betterverse.chatmanager.util.StringHelper;
 
 import org.bukkit.ChatColor;
