@@ -16,8 +16,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ru.tehkode.permissions.bukkit.PermissionsEx;
-
 public class ChatManager extends JavaPlugin implements Listener {
     private final List<ChatMessage> messages = new ArrayList<ChatMessage>();
     private Configuration config;
@@ -58,11 +56,12 @@ public class ChatManager extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerChat(PlayerChatEvent event) {
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
         // Check if the player is muted
         if (muteCmd.isPlayerMuted(player)) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You cannot speak. You have been muted for the reason: " + muteCmd.getMuteReason(player));
+            return;
         }
 
         // Check for spam
@@ -70,6 +69,23 @@ public class ChatManager extends JavaPlugin implements Listener {
             // Player has sent too many messages in a row, warn for spam
             player.sendMessage(config.getConsecutiveMessageWarning());
             event.setCancelled(true);
+
+            // Start time-out
+            getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+
+                @Override
+                public void run() {
+                    List<ChatMessage> remove = new ArrayList<ChatMessage>();
+                    for (ChatMessage message : messages) {
+                        if (message.getPlayer().equals(player.getName())) {
+                            remove.add(message);
+                        }
+                    }
+
+                    messages.removeAll(remove);
+                    player.sendMessage(config.getConsecutiveMessageTimeoutNotification());
+                }
+            }, config.getConsecutiveMessageTimeout());
         } else {
             // Check if player has sent too many messages within a certain period
             if (hasExceededChatLimit(player)) {

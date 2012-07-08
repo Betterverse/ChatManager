@@ -20,6 +20,14 @@ public class Configuration {
         load();
     }
 
+    public long getConsecutiveMessageTimeout() {
+        return file.getInt("consecutive-message-timeout-seconds") * 20;
+    }
+
+    public String getConsecutiveMessageTimeoutNotification() {
+        return StringHelper.parseColors(file.getString("messages.consecutive-message-timeout-notification"));
+    }
+
     public String getFormattedMessage(Player player, String message) {
         return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "" /* TODO */).replace("<nickname>", player.getDisplayName())
                 .replace("<message>", message);
@@ -53,8 +61,10 @@ public class Configuration {
         defaults.put("chat-format", "<prefix><pex-prefix><nickname>:&f <message>");
         defaults.put("chat-limit.messages", 4);
         defaults.put("chat-limit.time-in-seconds", 30);
+        defaults.put("consecutive-message-timeout-seconds", 30);
         defaults.put("maximum-consecutive-messages", 4);
         defaults.put("messages.chat-limit-warning", "&cYou have sent too many messages within <time> seconds. Please be patient.");
+        defaults.put("messages.consecutive-message-timeout-notification", "&aOkay, enough punishment. You can talk again.");
         defaults.put("messages.consecutive-warning", "&cYou have sent too many messages in a row. Please wait for someone else to chat before chatting again.");
 
         for (Entry<String, Object> entry : defaults.entrySet()) {
