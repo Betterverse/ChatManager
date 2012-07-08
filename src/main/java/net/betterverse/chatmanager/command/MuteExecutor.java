@@ -17,35 +17,37 @@ public class MuteExecutor implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
         if (sender.hasPermission("chatmanager.moderate.mute")) {
-            if (args.length >= 2) {
-                Player player = sender.getServer().getPlayer(args[0]);
-                if (player != null) {
-                    if (cmdLabel.equalsIgnoreCase("mute")) {
+            if (cmdLabel.equalsIgnoreCase("mute")) {
+                if (args.length >= 2) {
+                    Player player = sender.getServer().getPlayer(args[0]);
+                    if (player != null) {
                         muted.put(player.getName(), StringHelper.concatenate(args, 1));
                         sender.sendMessage(ChatColor.GREEN + "You muted " + ChatColor.YELLOW + player.getName() + ChatColor.GREEN + ".");
 
                         for (Player online : sender.getServer().getOnlinePlayers()) {
                             online.sendMessage(ChatColor.YELLOW + sender.getName() + ChatColor.GREEN + " has muted " + ChatColor.YELLOW + player.getName() + ChatColor.GREEN + " for the reason: " + ChatColor.YELLOW + muted.get(player.getName()));
                         }
-                    } else if (cmdLabel.equalsIgnoreCase("unmute")) {
-                        if (muted.containsKey(player.getName())) {
-                            muted.remove(player.getName());
-                            sender.sendMessage(ChatColor.GREEN + "You unmuted " + ChatColor.YELLOW + player.getName() + ChatColor.GREEN + ".");
-
-                            for (Player online : sender.getServer().getOnlinePlayers()) {
-                                online.sendMessage(ChatColor.YELLOW + sender.getName() + ChatColor.GREEN + " has unmuted " + ChatColor.YELLOW + player.getName() + ChatColor.GREEN + ".");
-                            }
-                        } else {
-                            sender.sendMessage(ChatColor.RED + player.getName() + " is not muted.");
-                        }
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Invalid arguments. /<mute|unmute> <player> <reason>");
+                        sender.sendMessage(ChatColor.RED + args[0] + " is not online.");
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + args[1] + " is not online.");
+                    sender.sendMessage(ChatColor.RED + "Invalid arguments. /mute <player> <reason>");
                 }
-            } else {
-                sender.sendMessage(ChatColor.RED + "Invalid arguments. /<mute|unmute> <player> <reason>");
+            } else if (cmdLabel.equalsIgnoreCase("unmute")) {
+                if (args.length == 1) {
+                    if (muted.containsKey(args[0])) {
+                        muted.remove(args[0]);
+                        sender.sendMessage(ChatColor.GREEN + "You unmuted " + ChatColor.YELLOW + args[0] + ChatColor.GREEN + ".");
+
+                        for (Player online : sender.getServer().getOnlinePlayers()) {
+                            online.sendMessage(ChatColor.YELLOW + sender.getName() + ChatColor.GREEN + " has unmuted " + ChatColor.YELLOW + args[0] + ChatColor.GREEN + ".");
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.RED + args[0] + " is not muted.");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Invalid arguments. /unmute <player>");
+                }
             }
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission.");
