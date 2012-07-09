@@ -16,6 +16,27 @@ public class StringHelper {
         return reason.toString();
     }
 
+    public static boolean isValidString(String check, boolean letters, boolean numbers, char... validCharacters) {
+        for (int i = 0; i < check.length(); i++) {
+            char character = check.charAt(i);
+            if ((letters && !Character.isLetter(character)) && (numbers && !Character.isDigit(character))) {
+                boolean valid = false;
+                innerLoop: for (char c : validCharacters) {
+                    if (character == c) {
+                        valid = true;
+                        break innerLoop;
+                    }
+                }
+
+                if (!valid) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public static String parseColors(String parse) {
         return parse.replace('&', '§');
     }

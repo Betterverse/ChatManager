@@ -1,6 +1,7 @@
 package net.betterverse.chatmanager.command;
 
 import net.betterverse.chatmanager.ChatManager;
+import net.betterverse.chatmanager.util.StringHelper;
 import net.betterverse.creditsshop.PlayerListener;
 
 import org.bukkit.ChatColor;
@@ -24,16 +25,7 @@ public class PrefixExecutor implements CommandExecutor {
                 plugin.setPrefix(player, "");
                 player.sendMessage(ChatColor.GREEN + "Prefix cleared.");
             } else if (args.length == 1) {
-                // Validate the prefix
-                boolean valid = true;
-                for (int i = 0; i < args[0].length(); i++) {
-                    if (!Character.isLetter(args[0].charAt(i))) {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                if (valid) {
+                if (StringHelper.isValidString(args[0], true, false)) {
                     if (PlayerListener.deductCredits(player, plugin.config().getPrefixCost())) {
                         plugin.setPrefix(player, args[0]);
                         player.sendMessage(ChatColor.GREEN + "You set your prefix to " + ChatColor.YELLOW + args[0] + ChatColor.GREEN + ".");
@@ -42,7 +34,7 @@ public class PrefixExecutor implements CommandExecutor {
                     player.sendMessage(ChatColor.RED + "Invalid prefix. Only letters are allowed.");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Invalid arguments. /prefix (prefix)");
+                player.sendMessage(ChatColor.RED + "Invalid arguments. /prefix (prefix)");
             }
         } else {
             sender.sendMessage("Only in-game players can use '/" + cmdLabel + "'.");

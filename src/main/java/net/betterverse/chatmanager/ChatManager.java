@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
+import net.betterverse.chatmanager.command.AliasExecutor;
 import net.betterverse.chatmanager.command.MeExecutor;
 import net.betterverse.chatmanager.command.ModeratorChatExecutor;
 import net.betterverse.chatmanager.command.MuteExecutor;
@@ -17,6 +18,7 @@ import net.betterverse.chatmanager.util.PlayerData;
 import net.betterverse.chatmanager.util.StringHelper;
 
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,6 +45,8 @@ public class ChatManager extends JavaPlugin implements Listener {
         data = new PlayerData(this);
 
         // Register commands
+        getCommand("alias").setExecutor(new AliasExecutor(this));
+
         getCommand("modchat").setExecutor(new ModeratorChatExecutor(this));
 
         replyCmd = new ReplyExecutor(this);
@@ -137,6 +141,10 @@ public class ChatManager extends JavaPlugin implements Listener {
         return config;
     }
 
+    public String getAlias(OfflinePlayer player) {
+        return data.getName(player);
+    }
+
     public String getPrefix(Player player) {
         return data.getPrefix(player);
     }
@@ -147,6 +155,10 @@ public class ChatManager extends JavaPlugin implements Listener {
 
     public void log(String message) {
         log(Level.INFO, message);
+    }
+
+    public void setAlias(String player, String alias) {
+        data.set(player + ".alias", alias);
     }
 
     public void setPrefix(Player player, String prefix) {

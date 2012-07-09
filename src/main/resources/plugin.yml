@@ -4,6 +4,8 @@ version: 1.0
 author: aPunch
 depend: [CreditsShop, PermissionsEx]
 commands:
+  alias:
+    description: Set your nickname
   me:
     description: Say what you are doing
   modchat:
@@ -24,9 +26,11 @@ permissions:
   chatmanager.*:
     default: op
     children:
+      chatmanager.alias: true
       chatmanager.colored: true
       chatmanager.moderate.*:
         children:
+          chatmanager.moderate.alias: true
           chatmanager.moderate.modchat: true
           chatmanager.moderate.mute: true
       chatmanager.whisper: true

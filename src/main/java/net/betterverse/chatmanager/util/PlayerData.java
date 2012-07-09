@@ -2,6 +2,7 @@ package net.betterverse.chatmanager.util;
 
 import java.io.File;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import net.betterverse.chatmanager.ChatManager;
@@ -15,14 +16,21 @@ public class PlayerData {
         load();
     }
 
+    public String getName(OfflinePlayer player) {
+        String name = file.getString(player.getName() + ".alias");
+        if (name.isEmpty()) {
+            name = player.getName();
+        }
+
+        return name;
+    }
+
     public String getPrefix(Player player) {
         return file.getString(player.getName() + ".prefix");
     }
 
     public void load() {
         file.load();
-
-        file.save();
     }
 
     public void set(String key, Object value) {

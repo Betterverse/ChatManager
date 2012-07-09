@@ -23,6 +23,10 @@ public class Configuration {
         load();
     }
 
+    public long getAliasCooldown() {
+        return file.getInt("alias-cooldown-hours") * 3600000;
+    }
+
     public int getChatLimit() {
         return file.getInt("chat-limit.messages");
     }
@@ -48,12 +52,12 @@ public class Configuration {
     }
 
     public String getFormattedMessage(Player player, String message) {
-        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", player.getDisplayName())
+        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", plugin.getAlias(player))
                 .replace("<message>", message);
     }
 
     public String getFormattedMeMessage(Player player, String message) {
-        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", player.getDisplayName())
+        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", plugin.getAlias(player))
                 .replace("<message>", message);
     }
 
@@ -75,6 +79,7 @@ public class Configuration {
 
         // Add defaults
         Map<String, Object> defaults = new HashMap<String, Object>();
+        defaults.put("alias-cooldown-hours", 24);
         defaults.put("chat-format", "<prefix><pex-prefix><nickname>:&f <message>");
         defaults.put("chat-limit.messages", 4);
         defaults.put("chat-limit.time-in-seconds", 30);
