@@ -9,9 +9,11 @@ import java.util.logging.Level;
 import net.betterverse.chatmanager.command.MeExecutor;
 import net.betterverse.chatmanager.command.ModeratorChatExecutor;
 import net.betterverse.chatmanager.command.MuteExecutor;
+import net.betterverse.chatmanager.command.PrefixExecutor;
 import net.betterverse.chatmanager.command.ReplyExecutor;
 import net.betterverse.chatmanager.command.WhisperExecutor;
 import net.betterverse.chatmanager.util.Configuration;
+import net.betterverse.chatmanager.util.PlayerData;
 import net.betterverse.chatmanager.util.StringHelper;
 
 import org.bukkit.ChatColor;
@@ -26,6 +28,7 @@ public class ChatManager extends JavaPlugin implements Listener {
     private final List<ChatMessage> messages = new ArrayList<ChatMessage>();
     private final Set<String> tasks = new HashSet<String>();
     private Configuration config;
+    private PlayerData data;
     private MuteExecutor muteCmd;
     private ReplyExecutor replyCmd;
 
@@ -37,6 +40,7 @@ public class ChatManager extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         config = new Configuration(this);
+        data = new PlayerData(this);
 
         // Register commands
         getCommand("modchat").setExecutor(new ModeratorChatExecutor(this));
@@ -49,6 +53,8 @@ public class ChatManager extends JavaPlugin implements Listener {
         muteCmd = new MuteExecutor();
         getCommand("mute").setExecutor(muteCmd);
         getCommand("unmute").setExecutor(muteCmd);
+
+        getCommand("prefix").setExecutor(new PrefixExecutor(this));
 
         getCommand("whisper").setExecutor(new WhisperExecutor(this));
 
@@ -131,12 +137,20 @@ public class ChatManager extends JavaPlugin implements Listener {
         return config;
     }
 
+    public String getPrefix(Player player) {
+        return data.getPrefix(player);
+    }
+
     public void log(Level level, String message) {
         getServer().getLogger().log(level, "[ChatManager] " + message);
     }
 
     public void log(String message) {
         log(Level.INFO, message);
+    }
+
+    public void setPrefix(Player player, String prefix) {
+        data.set(player.getName() + ".prefix", prefix);
     }
 
     public void whisper(CommandSender sender, CommandSender receiver, String message) {

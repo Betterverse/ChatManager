@@ -13,9 +13,11 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 import net.betterverse.chatmanager.ChatManager;
 
 public class Configuration {
+    private final ChatManager plugin;
     private final YamlFile file;
 
     public Configuration(ChatManager plugin) {
+        this.plugin = plugin;
         this.file = new YamlFile(plugin, new File(plugin.getDataFolder(), "config.yml"), "config");
 
         load();
@@ -46,16 +48,21 @@ public class Configuration {
     }
 
     public String getFormattedMessage(Player player, String message) {
-        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "" /* TODO */).replace("<nickname>", player.getDisplayName())
+        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", player.getDisplayName())
                 .replace("<message>", message);
     }
 
     public String getFormattedMeMessage(Player player, String message) {
-        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "" /* TODO */).replace("<nickname>", player.getDisplayName()).replace("<message>", message);
+        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", player.getDisplayName())
+                .replace("<message>", message);
     }
 
     public int getMaximumConsecutiveMessages() {
         return file.getInt("maximum-consecutive-messages");
+    }
+
+    public int getPrefixCost() {
+        return file.getInt("prefix-cost-in-credits");
     }
 
     public void sendWhisperMessages(CommandSender sender, CommandSender receiver, String message) {
@@ -77,6 +84,7 @@ public class Configuration {
         defaults.put("messages.chat-limit-warning", "&cYou have sent too many messages within <time> seconds. Please be patient.");
         defaults.put("messages.consecutive-message-timeout-notification", "&aOkay, enough punishment. You can talk again.");
         defaults.put("messages.consecutive-warning", "&cYou have sent too many messages in a row. Please wait for someone else to chat before chatting again.");
+        defaults.put("prefix-cost-in-credits", 10);
         defaults.put("whisper-format.receive", "&7<sender> whispered to you: <message>");
         defaults.put("whisper-format.send", "&7You whispered to <receiver>: <message>");
 

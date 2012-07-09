@@ -43,7 +43,7 @@ public class YamlFile {
     }
 
     public String getString(String key) {
-        return config.getString(key);
+        return config.getString(key, "");
     }
 
     public void load() {
