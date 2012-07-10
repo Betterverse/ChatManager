@@ -46,7 +46,7 @@ public class AliasExecutor implements CommandExecutor {
                                 player.sendMessage(ChatColor.RED + "You cannot set your alias to the name of an existing player.");
                             }
                         } else {
-                            player.sendMessage(ChatColor.RED + "Invalid alias. Only 16 alphanumeric characters are allowed.");
+                            player.sendMessage(ChatColor.RED + "Invalid alias. Only a maximum of 16 alphanumeric characters are allowed.");
                         }
                     } else {
                         player.sendMessage(ChatColor.RED + "This command is cooling down.");
