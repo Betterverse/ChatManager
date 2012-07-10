@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import net.betterverse.chatmanager.command.AliasExecutor;
+import net.betterverse.chatmanager.command.IgnoreExecutor;
 import net.betterverse.chatmanager.command.MeExecutor;
 import net.betterverse.chatmanager.command.ModeratorChatExecutor;
 import net.betterverse.chatmanager.command.MuteExecutor;
@@ -31,6 +32,8 @@ public class ChatManager extends JavaPlugin implements Listener {
     private final Set<String> tasks = new HashSet<String>();
     private Configuration config;
     private PlayerData data;
+    private IgnoreExecutor ignoreCmd;
+    private ModeratorChatExecutor modChatCmd;
     private MuteExecutor muteCmd;
     private ReplyExecutor replyCmd;
 
@@ -47,7 +50,12 @@ public class ChatManager extends JavaPlugin implements Listener {
         // Register commands
         getCommand("alias").setExecutor(new AliasExecutor(this));
 
-        getCommand("modchat").setExecutor(new ModeratorChatExecutor(this));
+        ignoreCmd = new IgnoreExecutor();
+        getCommand("ignore").setExecutor(ignoreCmd);
+        getCommand("unignore").setExecutor(ignoreCmd);
+
+        modChatCmd = new ModeratorChatExecutor();
+        getCommand("modchat").setExecutor(modChatCmd);
 
         replyCmd = new ReplyExecutor(this);
         getCommand("reply").setExecutor(replyCmd);
@@ -121,19 +129,36 @@ public class ChatManager extends JavaPlugin implements Listener {
             if (hasExceededChatLimit(player)) {
                 player.sendMessage(config.getChatLimitWarning());
                 event.setCancelled(true);
+            } else {
+                String message = event.getMessage();
+                // Strip color codes from the message if the player does not have the proper permission
+                if (!player.hasPermission("chatmanager.colored")) {
+                    message = StringHelper.stripColors(message);
+                }
+
+                boolean modChat = false;
+                if (modChatCmd.isInModChat(player)) {
+                    modChat = true;
+                    // Only send message to players with moderator chat permission
+                    for (Player online : player.getServer().getOnlinePlayers()) {
+                        if (!online.hasPermission("chatmanager.moderate.modchat")) {
+                            event.getRecipients().remove(online);
+                        }
+                    }
+                }
+
+                for (Player online : player.getServer().getOnlinePlayers()) {
+                    // Remove online player from list of recipients if they ignored the chatter
+                    if (event.getRecipients().contains(online) && ignoreCmd.isPlayerIgnoredByPlayer(online, player)) {
+                        event.getRecipients().remove(online);
+                    }
+                }
+
+                event.setFormat(StringHelper.parseColors((modChat ? "&d[ModChat]&f " : "") + config.getFormattedMessage(player, message)));
+
+                // Cache message
+                messages.add(new ChatMessage(player.getName(), System.currentTimeMillis()));
             }
-
-            String message = event.getMessage();
-            // Strip color codes from the message if the player does not have the proper permission
-            if (!player.hasPermission("chatmanager.colored")) {
-                message = StringHelper.stripColors(message);
-                event.setMessage(message);
-            }
-
-            event.setFormat(StringHelper.parseColors(config.getFormattedMessage(player, message)));
-
-            // Cache message
-            messages.add(new ChatMessage(player.getName(), System.currentTimeMillis()));
         }
     }
 

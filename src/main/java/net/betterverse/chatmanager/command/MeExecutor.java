@@ -26,7 +26,6 @@ public class MeExecutor implements CommandExecutor {
                 PlayerChatEvent event = new PlayerChatEvent(player, message);
                 player.getServer().getPluginManager().callEvent(event);
                 if (!event.isCancelled()) {
-                    event.setMessage(message);
                     for (Player online : sender.getServer().getOnlinePlayers()) {
                         online.sendMessage(plugin.config().getFormattedMeMessage(player, message));
                     }

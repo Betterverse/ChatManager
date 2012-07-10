@@ -3,25 +3,15 @@ package net.betterverse.chatmanager.command;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.betterverse.chatmanager.ChatManager;
-import net.betterverse.chatmanager.util.StringHelper;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
 
 public class ModeratorChatExecutor implements CommandExecutor, Listener {
     private final Set<String> modChat = new HashSet<String>();
-
-    public ModeratorChatExecutor(ChatManager plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
@@ -46,18 +36,7 @@ public class ModeratorChatExecutor implements CommandExecutor, Listener {
         return true;
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerChat(PlayerChatEvent event) {
-        Player player = event.getPlayer();
-        if (modChat.contains(player.getName())) {
-            // Send message to players with moderator chat permission
-            for (Player online : player.getServer().getOnlinePlayers()) {
-                if (!online.hasPermission("chatmanager.moderate.modchat")) {
-                    event.getRecipients().remove(online);
-                }
-            }
-
-            event.setFormat(StringHelper.parseColors("&d[ModChat]&f ") + event.getFormat());
-        }
+    public boolean isInModChat(Player player) {
+        return modChat.contains(player.getName());
     }
 }
