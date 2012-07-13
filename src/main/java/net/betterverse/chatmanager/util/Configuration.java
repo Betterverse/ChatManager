@@ -95,10 +95,9 @@ public class Configuration {
 
         for (Entry<String, Object> entry : defaults.entrySet()) {
             if (!file.containsKey(entry.getKey())) {
+                plugin.log("Could not find key '" + entry.getKey() + "', adding to config.");
                 file.set(entry.getKey(), entry.getValue());
             }
         }
-
-        file.save();
     }
 }
