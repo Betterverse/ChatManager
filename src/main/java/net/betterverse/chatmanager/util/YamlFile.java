@@ -3,6 +3,7 @@ package net.betterverse.chatmanager.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 
 import net.betterverse.chatmanager.ChatManager;
@@ -44,6 +45,10 @@ public class YamlFile {
 
     public String getString(String key) {
         return config.getString(key, "");
+    }
+
+    public List<String> getStringList(String key) {
+        return config.getStringList(key);
     }
 
     public void load() {

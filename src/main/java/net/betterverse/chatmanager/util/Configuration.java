@@ -1,7 +1,9 @@
 package net.betterverse.chatmanager.util;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -52,13 +54,13 @@ public class Configuration {
     }
 
     public String getFormattedMessage(Player player, String message) {
-        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player))
-                .replace("<message>", message);
+        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]")
+                .replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
     }
 
     public String getFormattedMeMessage(Player player, String message) {
-        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player))
-                .replace("<message>", message);
+        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]")
+                .replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
     }
 
     public int getMaximumConsecutiveMessages() {
@@ -67,6 +69,19 @@ public class Configuration {
 
     public int getPrefixCost() {
         return file.getInt("prefix-cost-in-credits");
+    }
+
+    public boolean isValidString(String parse) {
+        List<String> blacklistedColors = file.getStringList("color-code-blacklist");
+        for (int i = 0; i < parse.length(); i++) {
+            if (parse.charAt(i) == '&') {
+                if (blacklistedColors.contains(String.valueOf(parse.charAt(i + 1)))) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public void sendWhisperMessages(CommandSender sender, CommandSender receiver, String message) {
@@ -80,6 +95,7 @@ public class Configuration {
         // Add defaults
         Map<String, Object> defaults = new HashMap<String, Object>();
         defaults.put("alias-cooldown-hours", 24);
+        defaults.put("color-code-blacklist", Arrays.asList("l", "m", "n", "o"));
         defaults.put("chat-format", "<prefix><pex-prefix><nickname>:&f <message>");
         defaults.put("chat-limit.messages", 4);
         defaults.put("chat-limit.time-in-seconds", 30);
