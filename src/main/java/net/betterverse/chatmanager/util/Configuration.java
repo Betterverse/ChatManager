@@ -52,12 +52,12 @@ public class Configuration {
     }
 
     public String getFormattedMessage(Player player, String message) {
-        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", plugin.getAlias(player))
+        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player))
                 .replace("<message>", message);
     }
 
     public String getFormattedMeMessage(Player player, String message) {
-        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player)).replace("<nickname>", plugin.getAlias(player))
+        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player))
                 .replace("<message>", message);
     }
 
