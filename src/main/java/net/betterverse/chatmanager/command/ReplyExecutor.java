@@ -47,6 +47,6 @@ public class ReplyExecutor implements CommandExecutor {
     }
 
     public void addReply(CommandSender replier, CommandSender receiver) {
-        cachedReplies.put(replier.getName(), receiver.getName());
+        cachedReplies.put(receiver.getName(), replier.getName());
     }
 }
