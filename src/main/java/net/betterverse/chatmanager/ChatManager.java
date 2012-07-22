@@ -36,6 +36,7 @@ public class ChatManager extends JavaPlugin implements Listener {
     private ModeratorChatExecutor modChatCmd;
     private MuteExecutor muteCmd;
     private ReplyExecutor replyCmd;
+    private SilenceExecutor silenceCmd;
 
     @Override
     public void onDisable() {
@@ -68,6 +69,9 @@ public class ChatManager extends JavaPlugin implements Listener {
 
         getCommand("prefix").setExecutor(new PrefixExecutor(this));
 
+        silenceCmd = new SilenceExecutor(this);
+        getCommand("silence").setExecutor(silenceCmd);
+
         getCommand("whisper").setExecutor(new WhisperExecutor(this));
 
         // Register events
@@ -91,6 +95,11 @@ public class ChatManager extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerChat(PlayerChatEvent event) {
         final Player player = event.getPlayer();
+        // Check if the player has silenced chat
+        if (silenceCmd.hasPlayerSilencedChat(player)) {
+            event.getRecipients().remove(player);
+        }
+
         // Check if the player is muted
         if (muteCmd.isPlayerMuted(player)) {
             event.setCancelled(true);

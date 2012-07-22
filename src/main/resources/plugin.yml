@@ -19,6 +19,8 @@ commands:
   reply:
     description: Reply to a player's private message
     aliases: [r]
+  silence:
+    description: Silence chat
   unignore:
     description: Unignore a player
   unmute:
