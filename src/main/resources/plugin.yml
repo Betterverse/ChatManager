@@ -27,7 +27,7 @@ commands:
     description: Unmute a player
   whisper:
     description: Send a private message to a player
-    aliases: [msg, w]
+    aliases: [msg, w, tell]
 permissions:
   chatmanager.*:
     default: op
