@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import net.betterverse.chatmanager.command.AliasExecutor;
+import net.betterverse.chatmanager.command.ChatExecutor;
 import net.betterverse.chatmanager.command.IgnoreExecutor;
 import net.betterverse.chatmanager.command.MeExecutor;
 import net.betterverse.chatmanager.command.ModeratorChatExecutor;
@@ -32,11 +33,11 @@ public class ChatManager extends JavaPlugin implements Listener {
     private final Set<String> tasks = new HashSet<String>();
     private Configuration config;
     private PlayerData data;
+    private ChatExecutor chatCmd;
     private IgnoreExecutor ignoreCmd;
     private ModeratorChatExecutor modChatCmd;
     private MuteExecutor muteCmd;
     private ReplyExecutor replyCmd;
-    private SilenceExecutor silenceCmd;
 
     @Override
     public void onDisable() {
@@ -50,6 +51,9 @@ public class ChatManager extends JavaPlugin implements Listener {
 
         // Register commands
         getCommand("alias").setExecutor(new AliasExecutor(this));
+
+        chatCmd = new ChatExecutor(this);
+        getCommand("chat").setExecutor(chatCmd);
 
         ignoreCmd = new IgnoreExecutor();
         getCommand("ignore").setExecutor(ignoreCmd);
@@ -68,9 +72,6 @@ public class ChatManager extends JavaPlugin implements Listener {
         getCommand("unmute").setExecutor(muteCmd);
 
         getCommand("prefix").setExecutor(new PrefixExecutor(this));
-
-        silenceCmd = new SilenceExecutor(this);
-        getCommand("silence").setExecutor(silenceCmd);
 
         getCommand("whisper").setExecutor(new WhisperExecutor(this));
 
@@ -96,7 +97,7 @@ public class ChatManager extends JavaPlugin implements Listener {
     public void onPlayerChat(PlayerChatEvent event) {
         final Player player = event.getPlayer();
         // Check if the player has silenced chat
-        if (silenceCmd.hasPlayerSilencedChat(player)) {
+        if (chatCmd.hasPlayerSilencedChat(player)) {
             event.getRecipients().remove(player);
         }
 

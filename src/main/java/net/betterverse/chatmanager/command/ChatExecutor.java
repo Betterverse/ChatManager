@@ -1,7 +1,9 @@
-package net.betterverse.chatmanager;
+package net.betterverse.chatmanager.command;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import net.betterverse.chatmanager.ChatManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -12,10 +14,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class SilenceExecutor implements CommandExecutor, Listener {
+public class ChatExecutor implements CommandExecutor, Listener {
     private final Set<String> silence = new HashSet<String>();
 
-    public SilenceExecutor(ChatManager plugin) {
+    public ChatExecutor(ChatManager plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -23,12 +25,16 @@ public class SilenceExecutor implements CommandExecutor, Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (hasPlayerSilencedChat(player)) {
-                silence.remove(player.getName());
-                player.sendMessage(ChatColor.GREEN + "Chat is no longer silenced.");
+            if (args.length == 1 && args[0].equalsIgnoreCase("silence")) {
+                if (hasPlayerSilencedChat(player)) {
+                    silence.remove(player.getName());
+                    player.sendMessage(ChatColor.GREEN + "Chat is no longer silenced.");
+                } else {
+                    silence.add(player.getName());
+                    player.sendMessage(ChatColor.GREEN + "You have silenced chat.");
+                }
             } else {
-                silence.add(player.getName());
-                player.sendMessage(ChatColor.GREEN + "You have silenced chat.");
+                player.sendMessage(ChatColor.RED + "Invalid arguments.");
             }
         } else {
             sender.sendMessage("Only in-game players can use '/" + cmdLabel + "'.");

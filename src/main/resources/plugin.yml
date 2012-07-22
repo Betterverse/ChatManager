@@ -6,6 +6,8 @@ depend: [CreditsShop, PermissionsEx]
 commands:
   alias:
     description: Set your nickname
+  chat:
+    description: Various chat-related commands
   ignore:
     description: Ignore a player
   me:
@@ -19,8 +21,6 @@ commands:
   reply:
     description: Reply to a player's private message
     aliases: [r]
-  silence:
-    description: Silence chat
   unignore:
     description: Unignore a player
   unmute:
