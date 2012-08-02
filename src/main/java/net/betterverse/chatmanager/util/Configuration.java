@@ -54,13 +54,13 @@ public class Configuration {
     }
 
     public String getFormattedMessage(Player player, String message) {
-        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]")
-                .replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
+        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName()))
+                .replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
     }
 
     public String getFormattedMeMessage(Player player, String message) {
-        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName())).replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]")
-                .replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
+        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName()))
+                .replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
     }
 
     public int getMaximumConsecutiveMessages() {
@@ -86,7 +86,25 @@ public class Configuration {
 
     public void sendWhisperMessages(CommandSender sender, CommandSender receiver, String message) {
         sender.sendMessage(StringHelper.parseColors(file.getString("whisper-format.send").replace("<sender>", sender.getName()).replace("<receiver>", receiver.getName()).replace("<message>", message)));
-        receiver.sendMessage(StringHelper.parseColors(file.getString("whisper-format.receive").replace("<sender>", sender.getName()).replace("<receiver>", receiver.getName()).replace("<message>", message)));
+        receiver.sendMessage(StringHelper.parseColors(file.getString("whisper-format.receive").replace("<sender>", sender.getName()).replace("<receiver>", receiver.getName())
+                .replace("<message>", message)));
+    }
+
+    public String stripInvalidColorCodes(String parse) {
+        List<String> blacklistedColors = file.getStringList("color-code-blacklist");
+        for (int i = 0; i < parse.length(); i++) {
+            if (parse.charAt(i) == '&') {
+                if (blacklistedColors.contains(String.valueOf(parse.charAt(i + 1)))) {
+                    // Replace with spaces to maintain string length in loop, trim string later
+                    parse.replaceFirst("&" + parse.charAt(i + 1), "  ");
+                }
+            }
+        }
+
+        // Trim the result
+        parse = parse.replace(" ", "");
+
+        return parse;
     }
 
     public void load() {

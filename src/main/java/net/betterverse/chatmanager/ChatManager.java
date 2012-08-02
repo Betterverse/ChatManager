@@ -146,6 +146,11 @@ public class ChatManager extends JavaPlugin implements Listener {
                     message = StringHelper.stripColors(message);
                 }
 
+                // Do not allow invalid color codes
+                if (!config.isValidString(message)) {
+                    message = config.stripInvalidColorCodes(message);
+                }
+
                 boolean modChat = false;
                 if (modChatCmd.isInModChat(player)) {
                     modChat = true;
