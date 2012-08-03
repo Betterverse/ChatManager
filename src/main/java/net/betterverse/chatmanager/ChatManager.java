@@ -232,6 +232,7 @@ public class ChatManager extends JavaPlugin implements Listener {
             } else {
                 previous = name;
                 consecutive = 0;
+                continue;
             }
 
             if (consecutive == max) {
