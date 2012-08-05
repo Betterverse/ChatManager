@@ -121,14 +121,8 @@ public class ChatManager extends JavaPlugin implements Listener {
 
                     @Override
                     public void run() {
-                        List<ChatMessage> remove = new ArrayList<ChatMessage>();
-                        for (ChatMessage message : messages) {
-                            if (message.getPlayer().equals(player.getName())) {
-                                remove.add(message);
-                            }
-                        }
+                        messages.clear();
 
-                        messages.removeAll(remove);
                         player.sendMessage(config.getConsecutiveMessageTimeoutNotification());
                         tasks.remove(player.getName());
                     }
