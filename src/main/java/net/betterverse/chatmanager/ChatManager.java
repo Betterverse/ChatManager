@@ -129,10 +129,12 @@ public class ChatManager extends JavaPlugin implements Listener {
                 }, config.getConsecutiveMessageTimeout());
             }
         } else {
+            // Cancel the event and handle it manually
+            event.setCancelled(true);
+
             // Check if player has sent too many messages within a certain period
             if (hasExceededChatLimit(player)) {
                 player.sendMessage(config.getChatLimitWarning());
-                event.setCancelled(true);
             } else {
                 String message = event.getMessage();
                 // Strip color codes from the message if the player does not have the proper permission
@@ -163,7 +165,10 @@ public class ChatManager extends JavaPlugin implements Listener {
                     }
                 }
 
-                event.setFormat(StringHelper.parseColors((modChat ? "&d[ModChat]&f " : "") + config.getFormattedMessage(player, message)));
+                // Manually dispatch the message to all recipients
+                for (Player recipient : event.getRecipients()) {
+                    recipient.sendMessage(StringHelper.parseColors((modChat ? "&d[ModChat]&f " : "") + config.getFormattedMessage(player, message)));
+                }
 
                 // Cache message
                 messages.add(new ChatMessage(player.getName(), System.currentTimeMillis()));
