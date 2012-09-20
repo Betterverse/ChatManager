@@ -25,7 +25,7 @@ public class MeExecutor implements CommandExecutor {
             Player player = (Player) sender;
             if (args.length >= 1) {
                 String message = StringHelper.concatenate(args, 0);
-                AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(true, player, message, Sets.newHashSet(plugin.getServer().getOnlinePlayers()));
+                AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, player, message, Sets.newHashSet(plugin.getServer().getOnlinePlayers()));
                 event.setFormat(plugin.config().getMeCommandMessageFormat());
                 plugin.getServer().getPluginManager().callEvent(event);
                 plugin.doChatEvent(event);
