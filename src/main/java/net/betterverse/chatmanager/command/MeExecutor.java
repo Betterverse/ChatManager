@@ -8,7 +8,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+
+import com.google.common.collect.Sets;
 
 public class MeExecutor implements CommandExecutor {
     private final ChatManager plugin;
@@ -23,13 +25,10 @@ public class MeExecutor implements CommandExecutor {
             Player player = (Player) sender;
             if (args.length >= 1) {
                 String message = StringHelper.concatenate(args, 0);
-                PlayerChatEvent event = new PlayerChatEvent(player, message);
-                player.getServer().getPluginManager().callEvent(event);
-                if (!event.isCancelled()) {
-                    for (Player online : sender.getServer().getOnlinePlayers()) {
-                        online.sendMessage(plugin.config().getFormattedMeMessage(player, message));
-                    }
-                }
+                AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(true, player, message, Sets.newHashSet(plugin.getServer().getOnlinePlayers()));
+                event.setFormat(plugin.config().getMeCommandMessageFormat());
+                plugin.getServer().getPluginManager().callEvent(event);
+                plugin.doChatEvent(event);
             } else {
                 player.sendMessage(ChatColor.RED + "Invalid arguments. /me <msg>");
             }

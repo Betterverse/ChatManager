@@ -53,14 +53,23 @@ public class Configuration {
         return StringHelper.parseColors(file.getString("messages.consecutive-warning"));
     }
 
-    public String getFormattedMessage(Player player, String message) {
-        return file.getString("chat-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName()))
-                .replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
+    public String getChatMessageFormat() {
+        return file.getString("chat-format");
     }
 
-    public String getFormattedMeMessage(Player player, String message) {
-        return file.getString("me-format").replace("<pex-prefix>", PermissionsEx.getUser(player).getPrefix(player.getWorld().getName()))
-                .replace("<prefix>", plugin.getPrefix(player).isEmpty() ? "" : "&f[" + plugin.getPrefix(player) + "&f]").replace("<nickname>", plugin.getAlias(player)).replace("<message>", message);
+    public String getMeCommandMessageFormat() {
+        return file.getString("me-format");
+    }
+
+    public boolean isNonDefaultMessageFormat(String messageFormat) {
+        if (messageFormat.equals(getMeCommandMessageFormat()))
+            return true;
+        return false;
+    }
+
+    public String parsedMessageFormat(String messageFormat, Player sender, String message) {
+        return messageFormat.replace("<pex-prefix>", PermissionsEx.getUser(sender).getPrefix(sender.getWorld().getName()))
+                .replace("<prefix>", plugin.getPrefix(sender).isEmpty() ? "" : "&f[" + plugin.getPrefix(sender) + "&f]").replace("<nickname>", plugin.getAlias(sender)).replace("<message>", message);
     }
 
     public int getMaximumConsecutiveMessages() {

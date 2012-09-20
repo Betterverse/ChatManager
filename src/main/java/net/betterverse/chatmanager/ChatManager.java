@@ -2,6 +2,7 @@ package net.betterverse.chatmanager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -24,8 +25,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChatManager extends JavaPlugin implements Listener {
@@ -93,18 +95,13 @@ public class ChatManager extends JavaPlugin implements Listener {
         return builder.toString();
     }
 
-    @EventHandler
-    public void onPlayerChat(PlayerChatEvent event) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerChatLowest(AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
-        // Check if the player has silenced chat
-        if (chatCmd.hasPlayerSilencedChat(player)) {
-            event.getRecipients().remove(player);
-        }
-
         // Check if the player is muted
         if (muteCmd.isPlayerMuted(player)) {
-            event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You cannot speak. You have been muted for the reason: " + muteCmd.getMuteReason(player));
+            event.setCancelled(true);
             return;
         }
 
@@ -128,56 +125,87 @@ public class ChatManager extends JavaPlugin implements Listener {
                     }
                 }, config.getConsecutiveMessageTimeout());
             }
-        } else {
-            // Cancel the event and handle it manually
-            event.setCancelled(true);
+            return;
+        }
 
-            // Check if player has sent too many messages within a certain period
-            if (hasExceededChatLimit(player)) {
-                player.sendMessage(config.getChatLimitWarning());
-            } else {
-                String message = event.getMessage();
-                // Strip color codes from the message if the player does not have the proper permission
-                if (!player.hasPermission("chatmanager.colored")) {
-                    message = StringHelper.stripColors(message);
-                }
+        // Check if player has sent too many messages within a certain period
+        if (hasExceededChatLimit(player)) {
+            player.sendMessage(config.getChatLimitWarning());
+            return;
+        }
 
-                // Do not allow invalid color codes
-                if (!config.isValidString(message)) {
-                    message = config.stripInvalidColorCodes(message);
-                }
+        // Validated
 
-                boolean modChat = false;
-                if (modChatCmd.isInModChat(player)) {
-                    modChat = true;
-                    // Only send message to players with moderator chat permission
-                    for (Player online : player.getServer().getOnlinePlayers()) {
-                        if (!online.hasPermission("chatmanager.moderate.modchat")) {
-                            event.getRecipients().remove(online);
-                        }
-                    }
-                }
+        // Remember a message was sent.
+        messages.add(new ChatMessage(player.getName(), System.currentTimeMillis()));
 
-                for (Player online : player.getServer().getOnlinePlayers()) {
-                    // Remove online player from list of recipients if they ignored the chatter
-                    if (event.getRecipients().contains(online) && ignoreCmd.isPlayerIgnoredByPlayer(online, player)) {
-                        event.getRecipients().remove(online);
-                    }
-                }
+        // Message
 
-                // Manually dispatch the message to all recipients
-                for (Player recipient : event.getRecipients()) {
-                    recipient.sendMessage(StringHelper.parseColors((modChat ? "&d[ModChat]&f " : "") + config.getFormattedMessage(player, message)));
-                }
+        String message = event.getMessage();
+        // Strip color codes from the message if the player does not have the proper permission
+        if (!player.hasPermission("chatmanager.colored")) {
+            message = StringHelper.stripColors(message);
+        }
 
-                // Cache message
-                messages.add(new ChatMessage(player.getName(), System.currentTimeMillis()));
+        // Do not allow invalid color codes
+        if (!config.isValidString(message)) {
+            message = config.stripInvalidColorCodes(message);
+        }
+
+        // Set the new message
+        event.setMessage(message);
+
+        // Format
+
+        // Check if message format should be overwritten (Not the one set for the /me command)
+        if (!config().isNonDefaultMessageFormat(event.getFormat())) {
+            // Use normal message format
+            event.setFormat(config().getChatMessageFormat());
+        }
+
+        // Replace all variables in message format
+        String messageFormat = event.getFormat();
+        messageFormat = config().parsedMessageFormat(messageFormat, event.getPlayer(), event.getMessage());
+        messageFormat = StringHelper.parseColors(messageFormat);
+        event.setFormat(messageFormat);
+
+        // Recipients
+
+        // Check if the player has silenced chat
+        if (chatCmd.hasPlayerSilencedChat(player)) {
+            event.getRecipients().remove(player);
+        }
+
+        // Remove recipients if they ignored the chatter
+        for (Iterator<Player> it = event.getRecipients().iterator(); it.hasNext();) {
+            Player recipient = it.next();
+            if (ignoreCmd.isPlayerIgnoredByPlayer(recipient, player)) {
+                it.remove(); // Remove recipient from collection
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPlayerChatLow(AsyncPlayerChatEvent event) {
+        // Check if player is in mod chat
+        if (modChatCmd.isInModChat(event.getPlayer())) {
+            onModChat(event);
         }
     }
 
     public Configuration config() {
         return config;
+    }
+
+    public void doChatEvent(AsyncPlayerChatEvent event) {
+        if (!event.isCancelled()) {
+            String s = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
+            getServer().getConsoleSender().sendMessage(s);
+
+            for (Player recipient : event.getRecipients()) {
+                recipient.sendMessage(s);
+            }
+        }
     }
 
     public String getAlias(OfflinePlayer player) {
@@ -262,5 +290,23 @@ public class ChatManager extends JavaPlugin implements Listener {
         }
 
         return false;
+    }
+
+    private void onModChat(AsyncPlayerChatEvent event) {
+        // Fitler recipients that don't have permission to read modchat messages.
+        for (Iterator<Player> it = event.getRecipients().iterator(); it.hasNext();) {
+            Player recipient = it.next();
+            if (!recipient.hasPermission("chatmanager.moderate.modchat")) {
+                it.remove(); // Remove recipient from collection
+            }
+        }
+
+        // Preprend the moderation tag onto the format
+        String moderationTag = StringHelper.parseColors("&d[ModChat]&f ");
+        event.setFormat(moderationTag + event.getFormat());
+
+        // Cancel the event and send to recipients
+        doChatEvent(event);
+        event.setCancelled(true);
     }
 }
