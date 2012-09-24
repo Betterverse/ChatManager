@@ -48,28 +48,32 @@ public class AliasExecutor implements CommandExecutor {
                     if (player.hasPermission("chatmanager.alias")) {
                         if (!lastUse.containsKey(player.getName()) || lastUse.get(player.getName()) + plugin.config().getAliasCooldown() < System.currentTimeMillis()) {
                             String alias = args[0];
-                            if (StringHelper.isValidString(alias, true, true, '_') && StringHelper.stripColors(alias).length() <= 16) {
-                                if (plugin.config().isValidString(alias)) {
-                                    if (!plugin.getServer().getOfflinePlayer(alias).hasPlayedBefore() || alias.equals(player.getName())) {
-                                        for (OfflinePlayer check : plugin.getServer().getOfflinePlayers()) {
-                                            // Make sure no other player is using the alias
-                                            if (plugin.getAlias(check).equals(alias) && !alias.equals(player.getName())) {
-                                                player.sendMessage(ChatColor.RED + "Someone else is already using that alias!");
-                                                return true;
+                            if (alias.length() >= 5) {
+                                if (StringHelper.isValidString(alias, true, true, '_') && StringHelper.stripColors(alias).length() <= 16) {
+                                    if (plugin.config().isValidString(alias)) {
+                                        if (!plugin.getServer().getOfflinePlayer(alias).hasPlayedBefore() || alias.equals(player.getName())) {
+                                            for (OfflinePlayer check : plugin.getServer().getOfflinePlayers()) {
+                                                // Make sure no other player is using the alias
+                                                if (plugin.getAlias(check).equals(alias) && !alias.equals(player.getName())) {
+                                                    player.sendMessage(ChatColor.RED + "Someone else is already using that alias!");
+                                                    return true;
+                                                }
                                             }
-                                        }
 
-                                        plugin.setAlias(player.getName(), alias);
-                                        lastUse.put(player.getName(), System.currentTimeMillis());
-                                        player.sendMessage(ChatColor.GREEN + "Your alias is now " + ChatColor.YELLOW + alias + ChatColor.GREEN + ".");
+                                            plugin.setAlias(player.getName(), alias);
+                                            lastUse.put(player.getName(), System.currentTimeMillis());
+                                            player.sendMessage(ChatColor.GREEN + "Your alias is now " + ChatColor.YELLOW + alias + ChatColor.GREEN + ".");
+                                        } else {
+                                            player.sendMessage(ChatColor.RED + "You cannot set your alias to the name of an existing player.");
+                                        }
                                     } else {
-                                        player.sendMessage(ChatColor.RED + "You cannot set your alias to the name of an existing player.");
+                                        player.sendMessage(ChatColor.RED + "Invalid alias. You used an invalid color code.");
                                     }
                                 } else {
-                                    player.sendMessage(ChatColor.RED + "Invalid prefix. You used an invalid color code.");
+                                    player.sendMessage(ChatColor.RED + "Invalid alias. Only a maximum of 16 alphanumeric characters are allowed.");
                                 }
                             } else {
-                                player.sendMessage(ChatColor.RED + "Invalid alias. Only a maximum of 16 alphanumeric characters are allowed.");
+                                player.sendMessage(ChatColor.RED + "Invalid alias. It must be at least 5 characters long.");
                             }
                         } else {
                             player.sendMessage(ChatColor.RED + "This command is cooling down.");
