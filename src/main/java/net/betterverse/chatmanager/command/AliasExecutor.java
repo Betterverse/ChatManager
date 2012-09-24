@@ -44,6 +44,21 @@ public class AliasExecutor implements CommandExecutor {
                     } else {
                         player.sendMessage(ChatColor.RED + "That player has not yet set their alias.");
                     }
+                } else if (args[0].equalsIgnoreCase("check")) {
+                    if (args.length == 2) {
+                        String alias = args[1];
+                        for (OfflinePlayer check : plugin.getServer().getOfflinePlayers()) {
+                            if (plugin.getAlias(check).equalsIgnoreCase(alias)) {
+                                player.sendMessage(ChatColor.GREEN + "The alias " + ChatColor.YELLOW + alias + ChatColor.GREEN + " belongs to " + ChatColor.YELLOW + check.getName() + ChatColor.GREEN
+                                        + ".");
+                                return true;
+                            }
+                        }
+
+                        player.sendMessage(ChatColor.RED + "That alias does not belong to any player.");
+                    } else {
+                        player.sendMessage(ChatColor.RED + "Invalid arguments. /alias check (alias)");
+                    }
                 } else {
                     if (player.hasPermission("chatmanager.alias")) {
                         if (!lastUse.containsKey(player.getName()) || lastUse.get(player.getName()) + plugin.config().getAliasCooldown() < System.currentTimeMillis()) {
