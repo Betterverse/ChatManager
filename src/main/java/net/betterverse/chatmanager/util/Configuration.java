@@ -84,8 +84,12 @@ public class Configuration {
         List<String> blacklistedColors = file.getStringList("color-code-blacklist");
         for (int i = 0; i < parse.length(); i++) {
             if (parse.charAt(i) == '&') {
-                if (blacklistedColors.contains(String.valueOf(parse.charAt(i + 1)))) {
-                    return false;
+                try {
+                    if (blacklistedColors.contains(String.valueOf(parse.charAt(i + 1)))) {
+                        return false;
+                    }
+                } catch (Exception e) {
+                    break;
                 }
             }
         }

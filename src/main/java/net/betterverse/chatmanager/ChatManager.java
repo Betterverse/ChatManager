@@ -152,6 +152,9 @@ public class ChatManager extends JavaPlugin implements Listener {
             message = config.stripInvalidColorCodes(message);
         }
 
+        // Escape % characters in message
+        message = message.replaceAll("%", "%%");
+
         // Set the new message
         event.setMessage(message);
 
